@@ -115,11 +115,11 @@
     const mouseX = event.clientX;
     const mouseY = event.clientY;
 
-    moveButton(claineButton, mouseX, mouseY);
-    //moveButton(christianButton, mouseX, mouseY);
+    moveButton(claineButton, mouseX, mouseY, 2); // Multiplicador ajustado para 2
+   // moveButton(christianButton, mouseX, mouseY, 2); // Multiplicador ajustado para 2
   }
 
-  function moveButton(button, mouseX, mouseY) {
+  function moveButton(button, mouseX, mouseY, multiplier) {
     const buttonRect = button.getBoundingClientRect();
     const buttonX = buttonRect.left + buttonRect.width / 2;
     const buttonY = buttonRect.top + buttonRect.height / 2;
@@ -133,8 +133,8 @@
 
     if (distance < maxDistance) {
       const angle = Math.atan2(deltaY, deltaX);
-      const moveX = Math.cos(angle) * (maxDistance - distance) * 2; // Multiplicador ajustável para movimento mais rápido
-      const moveY = Math.sin(angle) * (maxDistance - distance) * 2; // Multiplicador ajustável para movimento mais rápido
+      const moveX = Math.cos(angle) * (maxDistance - distance) * multiplier; // Multiplicador ajustável para movimento mais rápido
+      const moveY = Math.sin(angle) * (maxDistance - distance) * multiplier; // Multiplicador ajustável para movimento mais rápido
 
       button.style.transform = `translate(${moveX}px, ${moveY}px)`;
       button.style.pointerEvents = 'none'; // Desabilita os eventos de clique enquanto se move
