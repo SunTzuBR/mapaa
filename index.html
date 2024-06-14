@@ -114,12 +114,18 @@
 
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    const maxDistance = 150; // Distância máxima para mover o botão
+    const maxDistance = 100; // Distância máxima para mover o botão (valor ajustável)
 
     if (distance < maxDistance) {
-      claineButton.style.pointerEvents = 'none'; // Desabilita os eventos de clique
+      const angle = Math.atan2(deltaY, deltaX);
+      const moveX = Math.cos(angle) * (maxDistance - distance) * 2; // Multiplicador ajustável para movimento mais rápido
+      const moveY = Math.sin(angle) * (maxDistance - distance) * 2; // Multiplicador ajustável para movimento mais rápido
+
+      claineButton.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      claineButton.style.pointerEvents = 'none'; // Desabilita os eventos de clique enquanto se move
     } else {
-      claineButton.style.pointerEvents = 'auto'; // Habilita os eventos de clique
+      claineButton.style.transform = 'translate(0, 0)';
+      claineButton.style.pointerEvents = 'auto'; // Habilita os eventos de clique quando não se move
     }
   }
 // URL do GeoJSON dos municípios de Alagoas
