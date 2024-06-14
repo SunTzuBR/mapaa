@@ -24,12 +24,6 @@
       margin-right: 8px;
       opacity: 0.8;
     }
-
-    .municipio-label {
-      font-size: 10px; /* Tamanho do texto do município */
-      font-weight: bold; /* Peso da fonte */
-      white-space: nowrap; /* Evita que o texto seja quebrado em várias linhas */
-    }
   </style>
 </head>
 <body>
@@ -53,6 +47,7 @@ function style(feature) {
   // Se atendimentos for 0, retornar sem cor de preenchimento e com borda preta
   if (atendimentos === 0) {
     return {
+      fillColor: 'transparent',
       weight: 1,
       opacity: 1,
       color: 'black',
@@ -63,10 +58,10 @@ function style(feature) {
 
   // Caso contrário, aplicar cor baseado nos atendimentos
   return {
+    fillColor: cor(atendimentos),
     weight: 1,
     opacity: 1,
     color: 'white',
-    fillColor: cor(atendimentos),
     fillOpacity: 0.8
   };
 }
@@ -86,6 +81,24 @@ function onMouseOut(e) {
   layer.closeTooltip();
 }
 
+// Função para exibir informações detalhadas ao clicar
+function onClick(e) {
+  const properties = e.target.feature.properties;
+  const atendimentos = properties.ATENDIMENTOS || 0;
+  
+  const popupContent = `
+    <h3>${properties.NM_MUNICIP}</h3>
+    <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
+    <p><strong>ID:</strong> ${properties.ID}</p>
+    <p><strong>CD_GEOCODM:</strong> ${properties.CD_GEOCODM}</p>
+  `;
+  
+  L.popup()
+    .setLatLng(e.latlng)
+    .setContent(popupContent)
+    .openOn(map);
+}
+
 // Criar o mapa inicializando no centro de Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
@@ -96,19 +109,12 @@ fetch(geojsonUrl)
     L.geoJSON(data, {
       style: style,
       onEachFeature: function(feature, layer) {
-        const bounds = layer.getBounds();
-        const centroid = bounds.getCenter();
-        const municipio = feature.properties.NM_MUNICIP;
-        L.marker([centroid.lat, centroid.lng], {
-          icon: L.divIcon({
-            className: 'municipio-label',
-            html: municipio
-          }),
-          opacity: 0.5 // Opacidade do texto
-        }).addTo(map);
-      },
-      onMouseOver: onMouseOver,
-      onMouseOut: onMouseOut
+        layer.on({
+          mouseover: onMouseOver,
+          mouseout: onMouseOut,
+          click: onClick
+        });
+      }
     }).addTo(map);
   });
 
@@ -130,4 +136,14 @@ legend.onAdd = function(map) {
   }
   
   // Adiciona a representação para 0 atendimentos
-  div.innerHTML
+  div.innerHTML += '<i style="background: transparent"></i> 0 (sem atendimentos)';
+
+  return div;
+};
+
+legend.addTo(map);
+
+</script>
+
+</body>
+</html>
