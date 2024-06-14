@@ -4,7 +4,6 @@
   <title>Mapa Interativo de Alagoas</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     #map {
       height: 600px;
@@ -30,9 +29,7 @@
 
 <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
-
 <script>
 
 // Seu GeoJSON dos municípios de Alagoas
@@ -94,58 +91,49 @@ function onClick(e) {
     <p><strong>CD_GEOCODM:</strong> ${properties.CD_GEOCODM}</p>
   `;
   
-  L.popup()
-    .setLatLng(e.latlng)
-    .setContent(popupContent)
-    .openOn(map);
+  alert(popupContent); // Modifique para exibir informações como desejar
 }
-
-// Criar o mapa inicializando no centro de Alagoas
-var map = L.map('map').setView([-9.5733, -36.7820], 8);
-
-// Adicionar camada de imagem SVG como plano de fundo
-L.imageOverlay('Mapa.svg', [[-10.516, -38.240], [-8.661, -35.459]]).addTo(map);
 
 // Carregar GeoJSON e adicionar ao mapa
 fetch(geojsonUrl)
   .then(response => response.json())
   .then(data => {
-    L.geoJSON(data, {
-      style: style,
-      onEachFeature: function(feature, layer) {
-        layer.on({
-          mouseover: onMouseOver,
-          mouseout: onMouseOut,
-          click: onClick
-        });
-      }
-    }).addTo(map);
+    // Desenhar os polígonos do GeoJSON
+    data.features.forEach(feature => {
+      const path = d3.geoPath();
+      const svg = d3.select("#map").append("svg");
+      
+      svg.selectAll("path")
+         .data([feature])
+         .enter()
+         .append("path")
+         .attr("d", path)
+         .style("fill", style(feature))
+         .on("mouseover", onMouseOver)
+         .on("mouseout", onMouseOut)
+         .on("click", onClick);
+    });
   });
 
 // Criar a legenda
-const legend = L.control({ position: 'bottomright' });
+const legend = document.createElement('div');
+legend.className = 'legend';
+legend.innerHTML = '<h4>Atendimentos</h4>';
 
-legend.onAdd = function(map) {
-  const div = L.DomUtil.create('div', 'info legend');
-  const grades = [0, 20, 40, 60, 80, 100]; // Valores da escala
-  const labels = [];
+const grades = [0, 20, 40, 60, 80, 100]; // Valores da escala
 
-  div.innerHTML = '<h4>Atendimentos</h4>';
-  
-  // Loop through our density intervals and generate a label with a colored square for each interval
-  for (let i = 0; i < grades.length; i++) {
-    div.innerHTML +=
-      '<i style="background:' + (grades[i] === 0 ? 'transparent' : style({ properties: { ATENDIMENTOS: grades[i] } }).fillColor) + '"></i> ' +
-      grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-  }
-  
-  // Adiciona a representação para 0 atendimentos
-  div.innerHTML += '<i style="background: transparent"></i> 0 (sem atendimentos)';
+// Loop through our density intervals and generate a label with a colored square for each interval
+grades.forEach((grade, index) => {
+  legend.innerHTML +=
+    '<i style="background:' + (grade === 0 ? 'transparent' : d3.scaleSequential(d3.interpolateBlues).domain([0, 100])(grade)) + '"></i> ' +
+    grade + (grades[index + 1] ? '&ndash;' + grades[index + 1] + '<br>' : '+');
+});
 
-  return div;
-};
+// Adiciona a representação para 0 atendimentos
+legend.innerHTML += '<i style="background: transparent"></i> 0 (sem atendimentos)';
 
-legend.addTo(map);
+// Adiciona a legenda ao mapa
+document.getElementById('map').appendChild(legend);
 
 </script>
 
