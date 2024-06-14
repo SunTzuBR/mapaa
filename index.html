@@ -100,7 +100,13 @@ function onClick(e) {
 }
 
 // Criar o mapa inicializando no centro de Alagoas
-var map = L.map('map').setView([-9.5733, -36.7820], 8);
+var map = L.map('map', {
+  maxBounds: [
+    [-9.5, -38], // Southwest coordinates
+    [-8.5, -35]  // Northeast coordinates
+  ],
+  maxBoundsViscosity: 1.0 // Mantém o mapa dentro dos limites definidos
+}).setView([-9.5733, -36.7820], 8);
 
 // Adicionar camada de mapa base (OpenStreetMap)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
