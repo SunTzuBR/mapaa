@@ -11,24 +11,31 @@
     }
     
     .legend {
-      background-color: white;
-      padding: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      position: absolute;
+      bottom: 30px;
+      right: 10px;
+      width: 40px;
+      height: 200px;
+      background: linear-gradient(to top, #313695, #4575b4, #74add1, #abd9e9, #e0f3f8, #ffffbf, #fee090, #fdae61, #f46d43, #d73027, #a50026);
+      border: 1px solid #ccc;
       border-radius: 5px;
     }
 
-    .legend i {
-      width: 20px;
-      height: 20px;
-      float: left;
-      margin-right: 8px;
-      opacity: 0.8;
+    .pointer {
+      position: absolute;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: black;
     }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
+<div class="legend">
+  <div id="pointer" class="pointer"></div>
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -37,37 +44,32 @@
 // Nem tente entender
 const geojsonUrl = 'AL.json';
 
-// Função para fazer ficar com cor( vou tentar mudar para valores melhores)
- function style(feature) {
- const atendimentos = feature.properties.ATENDIMENTOS || 0;
-  const cor = d3.scaleSequential(d3.interpolateBlues)
-            .domain([0, 100])  // Ajuste o domínio conforme necessário
-               .clamp(true);
 // Função para estilizar os polígonos com cores definidas manualmente
+function style(feature) {
+  const atendimentos = feature.properties.ATENDIMENTOS || 0;
 
-  // Se atendimentos for 0, fica sem cor
+  // Defina as cores manualmente conforme sua métrica
+  let fillColor;
   if (atendimentos === 0) {
-    return {
-      fillColor: 'transparent',
-      weight: 1,
-      opacity: 1,
-      color: 'black',
-      fillOpacity: 0,
-      dashArray: '3',  // Adiciona uma borda tracejada para diferenciar
-      stroke: true,
-      strokeColor: '#000000' // Adiciona cor do contorno
-    };
+    fillColor = '#ffffff'; // Branco para zero atendimentos
+  } else if (atendimentos < 20) {
+    fillColor = '#e0f3f8'; // Ajuste as cores conforme necessário
+  } else if (atendimentos < 40) {
+    fillColor = '#abd9e9';
+  } else if (atendimentos < 60) {
+    fillColor = '#74add1';
+  } else if (atendimentos < 80) {
+    fillColor = '#4575b4';
+  } else {
+    fillColor = '#313695';
   }
 
-  // se não foi oque está no if ele vai colocar a cor que esta na função atendimentos
   return {
-    fillColor: cor(atendimentos),
+    fillColor: fillColor,
     weight: 1,
     opacity: 1,
     color: 'white',
-    fillOpacity: 0.8,
-    stroke: true,
-    strokeColor: '#000000' // Tentei fazer aparecer a cor preta na borda mas por ter o traçejado ele não foi, deu preguiça de tirar e quebrar o codigo
+    fillOpacity: 0.8
   };
 }
 
@@ -78,20 +80,22 @@ function onMouseOver(e) {
   const atendimentos = properties.ATENDIMENTOS || 0;
   
   layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
+
+  // Atualizar a posição do ponteiro na legenda
+  updatePointer(atendimentos);
 }
 
-// Tira as infos ao sair o ponteiro
+// Função para remover informações ao retirar o mouse
 function onMouseOut(e) {
   const layer = e.target;
   layer.closeTooltip();
 }
 
-// aparece as infos ao passar por cima, que no caso eu defini a propiedade ATENDIMENTOS
+// Função para exibir informações detalhadas ao clicar
 function onClick(e) {
   const properties = e.target.feature.properties;
   const atendimentos = properties.ATENDIMENTOS || 0;
   
-// isso faz aparecer quando clica
   const popupContent = `
     <h3>${properties.NM_MUNICIP}</h3>
     <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
@@ -105,10 +109,25 @@ function onClick(e) {
     .openOn(map);
 }
 
+// Função para atualizar a posição do ponteiro na legenda
+function updatePointer(value) {
+  const min = 0;
+  const max = 100;
+  const range = max - min;
+  const percentage = (value - min) / range;
+  const pointer = document.getElementById('pointer');
+  pointer.style.top = `${(1 - percentage) * 100}%`;
+}
+
 // centraliza em Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
-// Carrega o geojson e o mapa, mas o mapa ta escondido com um arranjo tecnico(gambiarra)
+// Adicionar camada de mapa base (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+}).addTo(map);
+
+// Carregar GeoJSON e adicionar ao mapa
 fetch(geojsonUrl)
   .then(response => response.json())
   .then(data => {
@@ -123,31 +142,6 @@ fetch(geojsonUrl)
       }
     }).addTo(map);
   });
-
-// Ainda estou tentando fazer ela mais bonita e funcional
-const legend = L.control({ position: 'bottomright' });
-
-legend.onAdd = function(map) {
-  const div = L.DomUtil.create('div', 'info legend');
-  const grades = [0, 20, 40, 60, 80, 100]; // Valores da escala
-  const labels = [];
-
-  div.innerHTML = '<h4>Atendimentos</h4>';
-  
-  // Looping, nem tente entender tbm
-  for (let i = 0; i < grades.length; i++) {
-    div.innerHTML +=
-      '<i style="background:' + (grades[i] === 0 ? 'transparent' : style({ properties: { ATENDIMENTOS: grades[i] } }).fillColor) + '"></i> ' +
-      grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-  }
-  
-  // quando ta 0 ele fica sem cor
-  div.innerHTML += '<i style="background: transparent"></i> 0 (sem atendimentos)';
-
-  return div;
-};
-
-legend.addTo(map);
 
 </script>
 
