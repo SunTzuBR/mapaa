@@ -80,24 +80,6 @@ function onMouseOut(e) {
   layer.closeTooltip();
 }
 
-// Função para exibir informações detalhadas ao clicar
-function onClick(e) {
-  const properties = e.target.feature.properties;
-  const atendimentos = properties.ATENDIMENTOS || 0;
-  
-  const popupContent = `
-    <h3>${properties.NM_MUNICIP}</h3>
-    <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
-    <p><strong>ID:</strong> ${properties.ID}</p>
-    <p><strong>CD_GEOCODM:</strong> ${properties.CD_GEOCODM}</p>
-  `;
-  
-  L.popup()
-    .setLatLng(e.latlng)
-    .setContent(popupContent)
-    .openOn(map);
-}
-
 // Criar o mapa inicializando no centro de Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
@@ -110,10 +92,14 @@ fetch(geojsonUrl)
       onEachFeature: function(feature, layer) {
         layer.on({
           mouseover: onMouseOver,
-          mouseout: onMouseOut,
-          click: onClick
+          mouseout: onMouseOut
         });
-        layer.bindPopup(feature.properties.NM_MUNICIP);
+        const bounds = layer.getBounds();
+        const centroid = bounds.getCenter();
+        const municipio = feature.properties.NM_MUNICIP;
+        L.marker(centroid, {opacity: 0})
+          .bindTooltip(municipio, {permanent: true, direction: 'center', className: 'municipio-label'})
+          .addTo(map);
       }
     }).addTo(map);
   });
