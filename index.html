@@ -48,12 +48,15 @@
 <div class="legend">
   <div id="pointer" class="pointer"></div>
 </div>
-
-<button onclick="mostrarMensagem()">Clica Aqui</button>
+<button onclick="exibirAlerta()">Clique aqui</button>
   
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+
+  function exibirAlerta() {
+  alert('Alerta simples!'); // Exibe o alerta com o texto 'Alerta simples!'
+}
 
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
