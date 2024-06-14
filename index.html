@@ -71,6 +71,21 @@ function style(feature) {
   };
 }
 
+// Função para exibir informações ao passar o mouse
+function onMouseOver(e) {
+  const layer = e.target;
+  const properties = layer.feature.properties;
+  const atendimentos = properties.ATENDIMENTOS || 0;
+  
+  layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
+}
+
+// Função para remover informações ao retirar o mouse
+function onMouseOut(e) {
+  const layer = e.target;
+  layer.closeTooltip();
+}
+
 // Criar o mapa inicializando no centro de Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
@@ -84,13 +99,16 @@ fetch(geojsonUrl)
         const bounds = layer.getBounds();
         const centroid = bounds.getCenter();
         const municipio = feature.properties.NM_MUNICIP;
-        L.text([centroid.lat, centroid.lng], municipio, {
-          permanent: true,
-          direction: 'center',
-          className: 'municipio-label',
+        L.marker([centroid.lat, centroid.lng], {
+          icon: L.divIcon({
+            className: 'municipio-label',
+            html: municipio
+          }),
           opacity: 0.5 // Opacidade do texto
         }).addTo(map);
-      }
+      },
+      onMouseOver: onMouseOver,
+      onMouseOut: onMouseOut
     }).addTo(map);
   });
 
@@ -112,14 +130,4 @@ legend.onAdd = function(map) {
   }
   
   // Adiciona a representação para 0 atendimentos
-  div.innerHTML += '<i style="background: transparent"></i> 0 (sem atendimentos)';
-
-  return div;
-};
-
-legend.addTo(map);
-
-</script>
-
-</body>
-</html>
+  div.innerHTML
