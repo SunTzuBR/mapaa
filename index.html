@@ -97,9 +97,11 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-  const claineButton = document.getElementById('claine');
+   const claineButton = document.getElementById('claine');
+  const message = "Não tem como escapar mesmo kkkkk";
 
   window.addEventListener('mousemove', handleMouseMove);
+  claineButton.addEventListener('click', handleClick);
 
   function handleMouseMove(event) {
     const mouseX = event.clientX;
@@ -127,6 +129,10 @@
       claineButton.style.transform = 'translate(0, 0)';
       claineButton.style.pointerEvents = 'auto'; // Habilita os eventos de clique quando não se move
     }
+  }
+
+  function handleClick() {
+    alert(message); // Exibe a mensagem quando o botão é clicado dentro da maxDistance
   }
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
