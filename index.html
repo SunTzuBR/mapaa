@@ -93,30 +93,43 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-var botao = document.getElementById('botaoAlerta');
+  var claineButton = document.getElementById('claine');
+  var container = document.querySelector('.container');
 
-// Define a distância mínima para mover o botão
-var distanciaMinima = 50;
+  // Função para calcular e atualizar a posição do botão Claine
+  function updateClaineButtonPosition(mouseX, mouseY) {
+    var containerRect = container.getBoundingClientRect();
+    var containerX = containerRect.left;
+    var containerY = containerRect.top;
 
-// Adiciona um evento para mover o botão com o movimento do mouse
-document.addEventListener('mousemove', function(e) {
-  var mouseX = e.pageX; // Posição X do mouse
-  var mouseY = e.pageY; // Posição Y do mouse
+    var buttonRect = claineButton.getBoundingClientRect();
+    var buttonX = buttonRect.left + buttonRect.width / 2;
+    var buttonY = buttonRect.top + buttonRect.height / 2;
 
-  // Calcula a distância entre o botão e o cursor do mouse
-  var distanciaX = Math.abs(botao.offsetLeft - mouseX);
-  var distanciaY = Math.abs(botao.offsetTop - mouseY);
+    var distanceX = mouseX - buttonX;
+    var distanceY = mouseY - buttonY;
 
-  // Move o botão apenas se o cursor estiver perto o suficiente
-  if (distanciaX < distanciaMinima && distanciaY < distanciaMinima) {
-    // Calcula a nova posição do botão para longe do cursor
-    var novaPosX = mouseX + distanciaMinima + 10; // 10 pixels de margem à direita
-    var novaPosY = mouseY - distanciaMinima - 10; // 10 pixels de margem acima
+    var maxDistance = 50; // Limite máximo de afastamento
+    var moveFactor = 0.02; // Fator de movimento (quanto menor, mais suave)
 
-    // Define a posição do botão
-    botao.style.left = novaPosX + 'px';
-    botao.style.top = novaPosY + 'px';
+    var translateX = Math.min(Math.max(-maxDistance, distanceX * moveFactor), maxDistance);
+    var translateY = Math.min(Math.max(-maxDistance, distanceY * moveFactor), maxDistance);
+
+    claineButton.style.transform = `translate(${translateX}px, ${translateY}px)`;
   }
+
+  // Função para rastrear o movimento do mouse
+  function trackMouseMovement(event) {
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
+
+    updateClaineButtonPosition(mouseX, mouseY);
+  }
+
+  // Adicionar evento de movimento do mouse
+  document.addEventListener('mousemove', trackMouseMovement);
+
+  // Botão Christian
   var christianButton = document.getElementById('christian');
   christianButton.addEventListener('click', function() {
     alert('Exatamente!');
