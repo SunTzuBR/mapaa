@@ -41,6 +41,30 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+  
+  if (atendimentos === 0) {
+    return {
+      fillColor: 'transparent',
+      weight: 1,
+      opacity: 1,
+      color: 'black',
+      fillOpacity: 0,
+      dashArray: '3',  // Adiciona uma borda tracejada para diferenciar
+      stroke: true,
+      strokeColor: '#000000' // Adiciona cor do contorno
+    };
+  }
+    // se não foi oque está no if ele vai colocar a cor que esta na função atendimentos
+  return {
+    fillColor: cor(atendimentos),
+    weight: 1,
+    opacity: 1,
+    color: 'white',
+    fillOpacity: 0.8,
+    stroke: true,
+    strokeColor: '#000000' // Tentei fazer aparecer a cor preta na borda mas por ter o traçejado ele não foi, deu preguiça de tirar e quebrar o codigo
+  };
+}
 
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
