@@ -19,6 +19,9 @@
       color: white;
       border: none;
       cursor: pointer;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
     #map {
       height: 100%;
@@ -63,32 +66,49 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-var botao = document.getElementById('botaoAlerta');
+function exibirAlerta() {
+  alert('Alerta simples!'); // Exibe o alerta com o texto 'Alerta simples!'
+}
 
-// Define a distância mínima para mover o botão
-var distanciaMinima = 50;
+// Seleciona o botão pelo ID
+var botao = document.getElementById('botaoAlerta');
 
 // Adiciona um evento para mover o botão com o movimento do mouse
 document.addEventListener('mousemove', function(e) {
   var mouseX = e.pageX; // Posição X do mouse
   var mouseY = e.pageY; // Posição Y do mouse
 
-  // Calcula a distância entre o botão e o cursor do mouse
-  var distanciaX = Math.abs(botao.offsetLeft - mouseX);
-  var distanciaY = Math.abs(botao.offsetTop - mouseY);
+  var janelaWidth = window.innerWidth; // Largura da janela do navegador
+  var janelaHeight = window.innerHeight; // Altura da janela do navegador
 
-  // Move o botão apenas se o cursor estiver perto o suficiente
-  if (distanciaX < distanciaMinima && distanciaY < distanciaMinima) {
-    // Calcula a nova posição do botão para longe do cursor
-    var novaPosX = mouseX + distanciaMinima + 10; // 10 pixels de margem à direita
-    var novaPosY = mouseY - distanciaMinima - 10; // 10 pixels de margem acima
+  var botaoWidth = botao.offsetWidth; // Largura do botão
+  var botaoHeight = botao.offsetHeight; // Altura do botão
 
-    // Define a posição do botão
-    botao.style.left = novaPosX + 'px';
-    botao.style.top = novaPosY + 'px';
+  // Define a margem de segurança para que o botão não fique muito próximo das bordas da janela
+  var margemSeguranca = 20;
+
+  // Calcula a nova posição do botão para manter no centro e dentro dos limites da tela
+  var novaPosX = mouseX;
+  var novaPosY = mouseY;
+
+  // Limita a posição horizontal do botão dentro da janela
+  if (mouseX < botaoWidth / 2 + margemSeguranca) {
+    novaPosX = botaoWidth / 2 + margemSeguranca;
+  } else if (mouseX > janelaWidth - botaoWidth / 2 - margemSeguranca) {
+    novaPosX = janelaWidth - botaoWidth / 2 - margemSeguranca;
   }
-});
 
+  // Limita a posição vertical do botão dentro da janela
+  if (mouseY < botaoHeight / 2 + margemSeguranca) {
+    novaPosY = botaoHeight / 2 + margemSeguranca;
+  } else if (mouseY > janelaHeight - botaoHeight / 2 - margemSeguranca) {
+    novaPosY = janelaHeight - botaoHeight / 2 - margemSeguranca;
+  }
+
+  // Define a posição do botão
+  botao.style.left = novaPosX + 'px';
+  botao.style.top = novaPosY + 'px';
+});
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
 
