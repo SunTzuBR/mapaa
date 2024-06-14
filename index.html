@@ -13,7 +13,7 @@
     const svg = d3.select("#map").append("svg");
 
     // Carregar o shapefile
-    fetch('AL.zip') // substitua 'AL.zip' pelo caminho correto para o seu arquivo shapefile
+    fetch('AL.json') // substitua 'AL.zip' pelo caminho correto para o seu arquivo shapefile
       .then(response => response.arrayBuffer())
       .then(buffer => shapefile.open(buffer))
       .then(source => source.read()
