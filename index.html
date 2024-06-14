@@ -96,6 +96,7 @@ function onClick(e) {
   const properties = e.target.feature.properties;
   const atendimentos = properties.ATENDIMENTOS || 0;
   
+// isso faz aparecer quando clica
   const popupContent = `
     <h3>${properties.NM_MUNICIP}</h3>
     <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
@@ -120,7 +121,16 @@ function updatePointer(value) {
 }
 
 // Inicializar o mapa sem camada de base
-var map = L.map('map').setView([-9.5733, -36.7820], 8);
+var map = L.map('map', {
+  center: [-9.5733, -36.7820],
+  zoom: 8,
+  layers: [],  // Remover a camada base
+  maxBounds: [
+    [-10, -38], // Coordenadas do sudoeste de Alagoas
+    [-8, -35]  // Coordenadas do nordeste de Alagoas
+  ],
+  maxBoundsViscosity: 1.0
+});
 
 // Carregar GeoJSON e adicionar ao mapa
 fetch(geojsonUrl)
