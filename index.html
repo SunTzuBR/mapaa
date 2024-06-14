@@ -97,42 +97,69 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-   const claineButton = document.getElementById('claine');
-  const message = "Não tem como escapar mesmo kkkkk";
+
+  const claineButton = document.getElementById('claine');
+  const christianButton = document.getElementById('christian');
 
   window.addEventListener('mousemove', handleMouseMove);
-  claineButton.addEventListener('click', handleClick);
+
+  claineButton.addEventListener('click', function() {
+    handleClick("Não tem como escapar mesmo kkkkk");
+  });
+
+  christianButton.addEventListener('click', function() {
+    handleClick("Exatamente hehehe");
+  });
 
   function handleMouseMove(event) {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
 
-    const buttonRect = claineButton.getBoundingClientRect();
-    const buttonX = buttonRect.left + buttonRect.width / 2;
-    const buttonY = buttonRect.top + buttonRect.height / 2;
+    const claineRect = claineButton.getBoundingClientRect();
+    const claineX = claineRect.left + claineRect.width / 2;
+    const claineY = claineRect.top + claineRect.height / 2;
 
-    const deltaX = mouseX - buttonX;
-    const deltaY = mouseY - buttonY;
+    const christianRect = christianButton.getBoundingClientRect();
+    const christianX = christianRect.left + christianRect.width / 2;
+    const christianY = christianRect.top + christianRect.height / 2;
 
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const deltaXClaine = mouseX - claineX;
+    const deltaYClaine = mouseY - claineY;
+    const distanceClaine = Math.sqrt(deltaXClaine * deltaXClaine + deltaYClaine * deltaYClaine);
+
+    const deltaXChristian = mouseX - christianX;
+    const deltaYChristian = mouseY - christianY;
+    const distanceChristian = Math.sqrt(deltaXChristian * deltaXChristian + deltaYChristian * deltaYChristian);
 
     const maxDistance = 100; // Distância máxima para mover o botão (valor ajustável)
 
-    if (distance < maxDistance) {
-      const angle = Math.atan2(deltaY, deltaX);
-      const moveX = Math.cos(angle) * (maxDistance - distance) * 2; // Multiplicador ajustável para movimento mais rápido
-      const moveY = Math.sin(angle) * (maxDistance - distance) * 2; // Multiplicador ajustável para movimento mais rápido
+    if (distanceClaine < maxDistance) {
+      const angleClaine = Math.atan2(deltaYClaine, deltaXClaine);
+      const moveXClaine = Math.cos(angleClaine) * (maxDistance - distanceClaine) * 2; // Multiplicador ajustável para movimento mais rápido
+      const moveYClaine = Math.sin(angleClaine) * (maxDistance - distanceClaine) * 2; // Multiplicador ajustável para movimento mais rápido
 
-      claineButton.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      claineButton.style.transform = `translate(${moveXClaine}px, ${moveYClaine}px)`;
       claineButton.style.pointerEvents = 'none'; // Desabilita os eventos de clique enquanto se move
     } else {
       claineButton.style.transform = 'translate(0, 0)';
       claineButton.style.pointerEvents = 'auto'; // Habilita os eventos de clique quando não se move
     }
+
+    if (distanceChristian < maxDistance) {
+      const angleChristian = Math.atan2(deltaYChristian, deltaXChristian);
+      const moveXChristian = Math.cos(angleChristian) * (maxDistance - distanceChristian) * 2; // Multiplicador ajustável para movimento mais rápido
+      const moveYChristian = Math.sin(angleChristian) * (maxDistance - distanceChristian) * 2; // Multiplicador ajustável para movimento mais rápido
+
+      christianButton.style.transform = `translate(${moveXChristian}px, ${moveYChristian}px)`;
+      christianButton.style.pointerEvents = 'none'; // Desabilita os eventos de clique enquanto se move
+    } else {
+      christianButton.style.transform = 'translate(0, 0)';
+      christianButton.style.pointerEvents = 'auto'; // Habilita os eventos de clique quando não se move
+    }
   }
 
-  function handleClick() {
-    alert(message); // Exibe a mensagem quando o botão é clicado dentro da maxDistance
+  function handleClick(message) {
+    alert(message); // Exibe a mensagem correspondente quando o botão é clicado dentro da maxDistance
   }
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
