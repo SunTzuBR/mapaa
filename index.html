@@ -12,16 +12,28 @@
       padding: 0;
     }
     
-#botaoAlerta {
+    #container {
       position: absolute;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    #botoes {
+      margin-top: 20px;
+    }
+    .botao {
+      padding: 10px 20px;
+      margin: 0 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .botao:hover {
+      background-color: #0056b3;
     }
     #map {
       height: 100%;
@@ -56,59 +68,57 @@
 <body>
 
 <div id="map">
-<button id="botaoAlerta" onclick="exibirAlerta()">Clique aqui</button>
 </div>
 <div class="legend">
   <div id="pointer" class="pointer"></div>
 </div>
+  <div id="container">
+  <h2>Quem está sempre certo??</h2>
+  <div id="botoes">
+    <button id="claine" class="botao">Claine</button>
+    <button id="christian" class="botao" onclick="alert('Muito bem!')">Christian</button>
 
   
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-function exibirAlerta() {
-  alert('Alerta simples!'); // Exibe o alerta com o texto 'Alerta simples!'
-}
+  var claineButton = document.getElementById('claine');
 
-// Seleciona o botão pelo ID
-var botao = document.getElementById('botaoAlerta');
+  // Define os limites da área onde o botão pode se mover
+  var container = document.getElementById('container');
+  var containerRect = container.getBoundingClientRect();
+  var containerWidth = containerRect.width;
+  var containerHeight = containerRect.height;
 
-// Adiciona um evento para mover o botão com o movimento do mouse
-document.addEventListener('mousemove', function(e) {
-  var mouseX = e.pageX; // Posição X do mouse
-  var mouseY = e.pageY; // Posição Y do mouse
+  // Função para atualizar a posição do botão Claine
+  function updateClainePosition(event) {
+    // Posição atual do mouse
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
 
-  var janelaWidth = window.innerWidth; // Largura da janela do navegador
-  var janelaHeight = window.innerHeight; // Altura da janela do navegador
+    // Posição do container
+    var containerLeft = containerRect.left;
+    var containerTop = containerRect.top;
 
-  var botaoWidth = botao.offsetWidth; // Largura do botão
-  var botaoHeight = botao.offsetHeight; // Altura do botão
+    // Calcula a nova posição do botão Claine
+    var claineLeft = mouseX - containerLeft - claineButton.offsetWidth / 2;
+    var claineTop = mouseY - containerTop - claineButton.offsetHeight / 2;
 
-  // Define a margem de segurança para que o botão não fique muito próximo das bordas da janela
-  var margemSeguranca = 20;
+    // Limita a posição dentro do container
+    claineLeft = Math.max(0, Math.min(containerWidth - claineButton.offsetWidth, claineLeft));
+    claineTop = Math.max(0, Math.min(containerHeight - claineButton.offsetHeight, claineTop));
 
-  // Calcula a nova posição do botão para manter no centro e dentro dos limites da tela
-  var novaPosX = mouseX;
-  var novaPosY = mouseY;
-
-  // Limita a posição horizontal do botão dentro da janela
-  if (mouseX < botaoWidth / 2 + margemSeguranca) {
-    novaPosX = botaoWidth / 2 + margemSeguranca;
-  } else if (mouseX > janelaWidth - botaoWidth / 2 - margemSeguranca) {
-    novaPosX = janelaWidth - botaoWidth / 2 - margemSeguranca;
+    // Aplica a nova posição
+    claineButton.style.left = claineLeft + 'px';
+    claineButton.style.top = claineTop + 'px';
   }
 
-  // Limita a posição vertical do botão dentro da janela
-  if (mouseY < botaoHeight / 2 + margemSeguranca) {
-    novaPosY = botaoHeight / 2 + margemSeguranca;
-  } else if (mouseY > janelaHeight - botaoHeight / 2 - margemSeguranca) {
-    novaPosY = janelaHeight - botaoHeight / 2 - margemSeguranca;
-  }
+  // Adiciona evento de movimento do mouse no container
+  container.addEventListener('mousemove', updateClainePosition);
 
-  // Define a posição do botão
-  botao.style.left = novaPosX + 'px';
-  botao.style.top = novaPosY + 'px';
-});
+  // Inicializa a posição inicial do botão Claine
+  updateClainePosition({ clientX: containerRect.left + containerWidth / 2, clientY: containerRect.top + containerHeight / 2 });
+  
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
 
