@@ -95,10 +95,8 @@
 <script>
 var claineButton = document.getElementById('claine');
 
-  document.addEventListener('mousemove', function(event) {
-    var mouseX = event.clientX;
-    var mouseY = event.clientY;
-
+  // Função para atualizar a posição do botão Claine
+  function updateClaineButtonPosition(mouseX, mouseY) {
     var buttonRect = claineButton.getBoundingClientRect();
     var buttonX = buttonRect.left + buttonRect.width / 2;
     var buttonY = buttonRect.top + buttonRect.height / 2;
@@ -106,17 +104,28 @@ var claineButton = document.getElementById('claine');
     var distanceX = mouseX - buttonX;
     var distanceY = mouseY - buttonY;
 
-    var maxDistance = 50; // Define o limite máximo de afastamento
-    var moveFactor = 0.05; // Fator de movimento (quanto menor, mais suave)
+    var maxDistance = 50; // Limite máximo de afastamento
+    var moveFactor = 0.2; // Fator de movimento (quanto menor, mais suave)
 
     var translateX = Math.min(Math.max(-maxDistance, distanceX * moveFactor), maxDistance);
     var translateY = Math.min(Math.max(-maxDistance, distanceY * moveFactor), maxDistance);
 
     claineButton.style.transform = `translate(${translateX}px, ${translateY}px)`;
-  });
+  }
 
+  // Função para rastrear o movimento do mouse
+  function trackMouseMovement(event) {
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
+
+    updateClaineButtonPosition(mouseX, mouseY);
+  }
+
+  // Adicionar evento de movimento do mouse
+  document.addEventListener('mousemove', trackMouseMovement);
+
+  // Botão Christian
   var christianButton = document.getElementById('christian');
-
   christianButton.addEventListener('click', function() {
     alert('Exatamente!');
   });
