@@ -107,7 +107,7 @@ var claineButton = document.getElementById('claine');
     var distanceY = mouseY - buttonY;
 
     var maxDistance = 50; // Define o limite máximo de afastamento
-    var moveFactor = 0.1; // Fator de movimento (quanto menor, mais suave)
+    var moveFactor = 0.05; // Fator de movimento (quanto menor, mais suave)
 
     var translateX = Math.min(Math.max(-maxDistance, distanceX * moveFactor), maxDistance);
     var translateY = Math.min(Math.max(-maxDistance, distanceY * moveFactor), maxDistance);
