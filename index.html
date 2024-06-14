@@ -82,42 +82,51 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+ // Captura o elemento do botão Claine
   var claineButton = document.getElementById('claine');
 
-  // Define os limites da área onde o botão pode se mover
-  var container = document.getElementById('container');
-  var containerRect = container.getBoundingClientRect();
-  var containerWidth = containerRect.width;
-  var containerHeight = containerRect.height;
-
-  // Função para atualizar a posição do botão Claine
+  // Define a função para atualizar a posição do botão Claine
   function updateClainePosition(event) {
     // Posição atual do mouse
     var mouseX = event.clientX;
     var mouseY = event.clientY;
 
-    // Posição do container
-    var containerLeft = containerRect.left;
-    var containerTop = containerRect.top;
+    // Posição do botão Claine
+    var claineRect = claineButton.getBoundingClientRect();
+    var claineX = claineRect.left + claineRect.width / 2;
+    var claineY = claineRect.top + claineRect.height / 2;
+
+    // Vetor direção do mouse ao botão Claine
+    var directionX = mouseX - claineX;
+    var directionY = mouseY - claineY;
+
+    // Distância entre o mouse e o botão Claine
+    var distance = Math.sqrt(directionX * directionX + directionY * directionY);
+
+    // Fator de afastamento
+    var moveFactor = 100; // Ajuste conforme necessário
 
     // Calcula a nova posição do botão Claine
-    var claineLeft = mouseX - containerLeft - claineButton.offsetWidth / 2;
-    var claineTop = mouseY - containerTop - claineButton.offsetHeight / 2;
+    var claineLeft = claineRect.left - (directionX / distance) * moveFactor;
+    var claineTop = claineRect.top - (directionY / distance) * moveFactor;
 
-    // Limita a posição dentro do container
-    claineLeft = Math.max(0, Math.min(containerWidth - claineButton.offsetWidth, claineLeft));
-    claineTop = Math.max(0, Math.min(containerHeight - claineButton.offsetHeight, claineTop));
+    // Limita a posição do botão Claine dentro dos limites do container
+    claineLeft = Math.max(0, Math.min(window.innerWidth - claineButton.offsetWidth, claineLeft));
+    claineTop = Math.max(0, Math.min(window.innerHeight - claineButton.offsetHeight, claineTop));
 
-    // Aplica a nova posição
-    claineButton.style.left = claineLeft + 'px';
-    claineButton.style.top = claineTop + 'px';
+    // Aplica a nova posição com transição suave
+    claineButton.style.transition = 'transform 0.1s ease-out';
+    claineButton.style.transform = `translate(${claineLeft}px, ${claineTop}px)`;
   }
+
+  // Captura o container
+  var container = document.getElementById('container');
 
   // Adiciona evento de movimento do mouse no container
   container.addEventListener('mousemove', updateClainePosition);
 
   // Inicializa a posição inicial do botão Claine
-  updateClainePosition({ clientX: containerRect.left + containerWidth / 2, clientY: containerRect.top + containerHeight / 2 });
+  updateClainePosition({ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
   
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
