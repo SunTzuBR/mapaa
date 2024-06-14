@@ -97,47 +97,29 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-    var claineButton = document.getElementById('claine');
-  var container = document.querySelector('.container');
+   const claineButton = document.getElementById('claine');
 
-  // Função para calcular e atualizar a posição do botão Claine
-  function updateClaineButtonPosition(mouseX, mouseY) {
-    var containerRect = container.getBoundingClientRect();
-    var containerX = containerRect.left;
-    var containerY = containerRect.top;
+  // Adiciona evento de movimento do mouse na janela
+  window.addEventListener('mousemove', handleMouseMove);
 
-    var buttonRect = claineButton.getBoundingClientRect();
-    var buttonX = buttonRect.left + buttonRect.width / 2;
-    var buttonY = buttonRect.top + buttonRect.height / 2;
+  // Função para lidar com o movimento do mouse
+  function handleMouseMove(event) {
+    // Posição do mouse
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
 
-    var distanceX = mouseX - buttonX;
-    var distanceY = mouseY - buttonY;
+    // Posição do botão Claine
+    const buttonRect = claineButton.getBoundingClientRect();
+    const buttonX = buttonRect.left + buttonRect.width / 2;
+    const buttonY = buttonRect.top + buttonRect.height / 2;
 
-    var maxDistance = 50; // Limite máximo de afastamento
-    var moveFactor = 0.02; // Fator de movimento (quanto menor, mais suave)
+    // Distância entre o mouse e o centro do botão Claine
+    const deltaX = mouseX - buttonX;
+    const deltaY = mouseY - buttonY;
 
-    var translateX = Math.min(Math.max(-maxDistance, distanceX * moveFactor), maxDistance);
-    var translateY = Math.min(Math.max(-maxDistance, distanceY * moveFactor), maxDistance);
-
-    claineButton.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    // Aplica transformação para afastar o botão Claine
+    claineButton.style.transform = `translate(${deltaX * 0.1}px, ${deltaY * 0.1}px)`;
   }
-
-  // Função para rastrear o movimento do mouse
-  function trackMouseMovement(event) {
-    var mouseX = event.clientX;
-    var mouseY = event.clientY;
-
-    updateClaineButtonPosition(mouseX, mouseY);
-  }
-
-  // Adicionar evento de movimento do mouse
-  document.addEventListener('mousemove', trackMouseMovement);
-
-  // Botão Christian
-  var christianButton = document.getElementById('christian');
-  christianButton.addEventListener('click', function() {
-    alert('Exatamente!');
-  });
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
 
