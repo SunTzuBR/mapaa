@@ -32,6 +32,7 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
+
 <script>
 
 // Seu GeoJSON dos municípios de Alagoas
@@ -102,8 +103,8 @@ function onClick(e) {
 // Criar o mapa inicializando no centro de Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
-// Adicionar camada de imagem como plano de fundo
-L.imageOverlay('mapa.png', [[-10.516, -38.240], [-8.661, -35.459]]).addTo(map);
+// Adicionar camada de imagem SVG como plano de fundo
+L.imageOverlay('Mapa.svg', [[-10.516, -38.240], [-8.661, -35.459]]).addTo(map);
 
 // Carregar GeoJSON e adicionar ao mapa
 fetch(geojsonUrl)
