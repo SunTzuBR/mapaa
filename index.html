@@ -11,11 +11,14 @@
       margin: 0;
       padding: 0;
     }
-    #butao {
-    position: absolute;
-    align-items: center;
+#botaoAlerta {
+      position: absolute;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
-    
     #map {
       height: 100%;
       width: 100%;
@@ -49,7 +52,7 @@
 <body>
 
 <div id="map">
-<button id="butao" onclick="exibirAlerta()">Clique aqui</button>
+<button id="botaoAlerta" onclick="exibirAlerta()">Clique aqui</button>
 </div>
 <div class="legend">
   <div id="pointer" class="pointer"></div>
@@ -59,10 +62,22 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-
-  function exibirAlerta() {
-  alert('Te amo minha vida'); // Exibe o alerta com o texto 'Alerta simples!'
+function exibirAlerta() {
+  alert('Te amo vida!'); // Exibe o alerta com o texto 'Alerta simples!'
 }
+
+// Seleciona o botão pelo ID
+var botao = document.getElementById('botaoAlerta');
+
+// Adiciona um evento para mover o botão com o movimento do mouse
+document.addEventListener('mousemove', function(e) {
+  var mouseX = e.pageX; // Posição X do mouse
+  var mouseY = e.pageY; // Posição Y do mouse
+
+  // Define a posição do botão baseada na posição do mouse
+  botao.style.left = (mouseX + 20) + 'px'; // Adiciona um deslocamento para a direita
+  botao.style.top = (mouseY - 20) + 'px'; // Adiciona um deslocamento para cima
+});
 
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
