@@ -11,7 +11,11 @@
       margin: 0;
       padding: 0;
     }
-
+    #butao {
+    position: absolute;
+    align-items: center;
+    }
+    
     #map {
       height: 100%;
       width: 100%;
@@ -45,7 +49,7 @@
 <body>
 
 <div id="map">
-<button onclick="exibirAlerta()">Clique aqui</button>
+<button id="butao" onclick="exibirAlerta()">Clique aqui</button>
 </div>
 <div class="legend">
   <div id="pointer" class="pointer"></div>
