@@ -9,7 +9,7 @@
     #map {
       height: 600px;
     }
-
+    
     .legend {
       background-color: white;
       padding: 10px;
@@ -23,12 +23,6 @@
       float: left;
       margin-right: 8px;
       opacity: 0.8;
-    }
-
-    .municipio-label {
-      font-size: 12px;
-      font-weight: bold;
-      color: black;
     }
   </style>
 </head>
@@ -72,13 +66,41 @@ function style(feature) {
   };
 }
 
+// Função para exibir informações ao passar o mouse
+function onMouseOver(e) {
+  const layer = e.target;
+  const properties = layer.feature.properties;
+  const atendimentos = properties.ATENDIMENTOS || 0;
+  
+  layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
+}
+
+// Função para remover informações ao retirar o mouse
+function onMouseOut(e) {
+  const layer = e.target;
+  layer.closeTooltip();
+}
+
+// Função para exibir informações detalhadas ao clicar
+function onClick(e) {
+  const properties = e.target.feature.properties;
+  const atendimentos = properties.ATENDIMENTOS || 0;
+  
+  const popupContent = `
+    <h3>${properties.NM_MUNICIP}</h3>
+    <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
+    <p><strong>ID:</strong> ${properties.ID}</p>
+    <p><strong>CD_GEOCODM:</strong> ${properties.CD_GEOCODM}</p>
+  `;
+  
+  L.popup()
+    .setLatLng(e.latlng)
+    .setContent(popupContent)
+    .openOn(map);
+}
+
 // Criar o mapa inicializando no centro de Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
-
-// Adicionar camada de mapa base (OpenStreetMap)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-}).addTo(map);
 
 // Carregar GeoJSON e adicionar ao mapa
 fetch(geojsonUrl)
@@ -86,20 +108,14 @@ fetch(geojsonUrl)
   .then(data => {
     L.geoJSON(data, {
       style: style,
+      onEachFeature: function(feature, layer) {
+        layer.on({
+          mouseover: onMouseOver,
+          mouseout: onMouseOut,
+          click: onClick
+        });
+      }
     }).addTo(map);
-
-    // Adicionar marcadores com o nome dos municípios
-    data.features.forEach(feature => {
-      const coordinates = feature.geometry.coordinates[0][0]; // Pegar as coordenadas do município
-      const nomeMunicipio = feature.properties.NM_MUNICIP; // Pegar o nome do município
-
-      L.marker(coordinates, {
-        icon: L.divIcon({
-          className: 'municipio-label',
-          html: nomeMunicipio,
-        }),
-      }).addTo(map);
-    });
   });
 
 // Criar a legenda
