@@ -94,42 +94,50 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
   var claineButton = document.getElementById('claine');
-  var container = document.querySelector('.container');
 
-  // Função para calcular e atualizar a posição do botão Claine
-  function updateClaineButtonPosition(mouseX, mouseY) {
-    var containerRect = container.getBoundingClientRect();
-    var containerX = containerRect.left;
-    var containerY = containerRect.top;
-
-    var buttonRect = claineButton.getBoundingClientRect();
-    var buttonX = buttonRect.left + buttonRect.width / 2;
-    var buttonY = buttonRect.top + buttonRect.height / 2;
-
-    var distanceX = mouseX - buttonX;
-    var distanceY = mouseY - buttonY;
-
-    var maxDistance = 50; // Limite máximo de afastamento
-    var moveFactor = 0.02; // Fator de movimento (quanto menor, mais suave)
-
-    var translateX = Math.min(Math.max(-maxDistance, distanceX * moveFactor), maxDistance);
-    var translateY = Math.min(Math.max(-maxDistance, distanceY * moveFactor), maxDistance);
-
-    claineButton.style.transform = `translate(${translateX}px, ${translateY}px)`;
-  }
-
-  // Função para rastrear o movimento do mouse
-  function trackMouseMovement(event) {
+  // Define a função para atualizar a posição do botão Claine
+  function updateClainePosition(event) {
+    // Posição atual do mouse
     var mouseX = event.clientX;
     var mouseY = event.clientY;
 
-    updateClaineButtonPosition(mouseX, mouseY);
+    // Posição do botão Claine
+    var claineRect = claineButton.getBoundingClientRect();
+    var claineX = claineRect.left + claineRect.width / 2;
+    var claineY = claineRect.top + claineRect.height / 2;
+
+    // Vetor direção do mouse ao botão Claine
+    var directionX = mouseX - claineX;
+    var directionY = mouseY - claineY;
+
+    // Distância entre o mouse e o botão Claine
+    var distance = Math.sqrt(directionX * directionX + directionY * directionY);
+
+    // Fator de afastamento
+    var moveFactor = 100; // Ajuste conforme necessário
+
+    // Calcula a nova posição do botão Claine
+    var claineLeft = claineRect.left - (directionX / distance) * moveFactor;
+    var claineTop = claineRect.top - (directionY / distance) * moveFactor;
+
+    // Limita a posição do botão Claine dentro dos limites do container
+    claineLeft = Math.max(0, Math.min(window.innerWidth - claineButton.offsetWidth, claineLeft));
+    claineTop = Math.max(0, Math.min(window.innerHeight - claineButton.offsetHeight, claineTop));
+
+    // Aplica a nova posição com transição suave
+    claineButton.style.transition = 'transform 0.1s ease-out';
+    claineButton.style.transform = `translate(${claineLeft}px, ${claineTop}px)`;
   }
 
-  // Adicionar evento de movimento do mouse
-  document.addEventListener('mousemove', trackMouseMovement);
+  // Captura o container
+  var container = document.getElementById('container');
 
-  // Botão Christian
+  // Adiciona evento de movimento do mouse no container
+  container.addEventListener('mousemove', updateClainePosition);
+
+  // Inicializa a posição inicial do botão Claine
+  updateClainePosition({ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 });
+  
   var christianButton = document.getElementById('christian');
   christianButton.addEventListener('click', function() {
     alert('Exatamente!');
