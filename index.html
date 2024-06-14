@@ -41,7 +41,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 
-// Nem tente entender
+// URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
 
 // Função para estilizar os polígonos com cores definidas manualmente
@@ -119,13 +119,8 @@ function updatePointer(value) {
   pointer.style.top = `${(1 - percentage) * 100}%`;
 }
 
-// centraliza em Alagoas
+// Inicializar o mapa sem camada de base
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
-
-// Adicionar camada de mapa base (OpenStreetMap)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-}).addTo(map);
 
 // Carregar GeoJSON e adicionar ao mapa
 fetch(geojsonUrl)
