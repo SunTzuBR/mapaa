@@ -97,28 +97,36 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-   const claineButton = document.getElementById('claine');
+  const claineButton = document.getElementById('claine');
 
-  // Adiciona evento de movimento do mouse na janela
   window.addEventListener('mousemove', handleMouseMove);
 
-  // Função para lidar com o movimento do mouse
   function handleMouseMove(event) {
-    // Posição do mouse
     const mouseX = event.clientX;
     const mouseY = event.clientY;
 
-    // Posição do botão Claine
     const buttonRect = claineButton.getBoundingClientRect();
     const buttonX = buttonRect.left + buttonRect.width / 2;
     const buttonY = buttonRect.top + buttonRect.height / 2;
 
-    // Distância entre o mouse e o centro do botão Claine
     const deltaX = mouseX - buttonX;
     const deltaY = mouseY - buttonY;
 
-    // Aplica transformação para afastar o botão Claine
-    claineButton.style.transform = `translate(${deltaX * 0.1}px, ${deltaY * 0.1}px)`;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    const maxDistance = 150; // Distância máxima para mover o botão
+
+    if (distance < maxDistance) {
+      const angle = Math.atan2(deltaY, deltaX);
+      const moveX = Math.cos(angle) * (maxDistance - distance);
+      const moveY = Math.sin(angle) * (maxDistance - distance);
+
+      claineButton.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      claineButton.style.pointerEvents = 'none'; // Desabilita os eventos de clique enquanto se move
+    } else {
+      claineButton.style.transform = 'translate(0, 0)';
+      claineButton.style.pointerEvents = 'auto'; // Habilita os eventos de clique quando não se move
+    }
   }
 // URL do GeoJSON dos municípios de Alagoas
 const geojsonUrl = 'AL.json';
