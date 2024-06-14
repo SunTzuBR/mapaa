@@ -11,28 +11,37 @@
       margin: 0;
       padding: 0;
     }
-    
+    body {
+      margin: 0;
+      overflow: hidden; /* Impede a rolagem da página */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh; /* Toda a altura da viewport */
+      background-color: #f0f0f0;
+    }
     #container {
+      position: relative;
+      width: 100%;
+      height: 50vh; /* Metade da altura da viewport */
+      background-color: transparent;
+      overflow: hidden; /* Impede a exibição de conteúdo fora do contêiner */
+    }
+    #claine {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-    #botoes {
-      margin-top: 20px;
-    }
-    .botao {
+      top: 10%; /* Aproximadamente 10% do topo */
+      left: 50%; /* Centralizado horizontalmente */
+      transform: translateX(-50%);
       padding: 10px 20px;
-      margin: 0 10px;
       cursor: pointer;
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 5px;
       font-size: 16px;
+      transition: transform 0.1s ease-out; /* Transição suave para o movimento */
     }
-    .botao:hover {
+    #claine:hover {
       background-color: #0056b3;
     }
     #map {
