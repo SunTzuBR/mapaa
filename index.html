@@ -93,6 +93,7 @@ function onClick(e) {
     <p><strong>CD_GEOCODM:</strong> ${properties.CD_GEOCODM}</p>
   `;
   
+  // Abre a janela de informações diretamente
   L.popup()
     .setLatLng(e.latlng)
     .setContent(popupContent)
