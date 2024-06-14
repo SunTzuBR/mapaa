@@ -9,23 +9,44 @@
     #map {
       height: 600px;
     }
-    
+
     .legend {
       background-color: white;
       padding: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       border-radius: 5px;
       position: absolute;
-      bottom: 30px;
-      left: 30px;
-      z-index: 999;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
     }
 
-    .legend i {
+    .legend-bar {
       width: 20px;
-      height: 20px;
-      margin-right: 8px;
-      opacity: 0.8;
+      height: 200px;
+      background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(0,0,255,1) 100%);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .legend-indicator {
+      position: absolute;
+      bottom: 0;
+      left: -5px;
+      width: 30px;
+      height: 5px;
+      background-color: red;
+      transform: translateY(0%);
+      z-index: 1001;
+    }
+
+    .legend-labels {
+      position: absolute;
+      top: 0;
+      left: 30px;
+      font-size: 12px;
+      color: #555;
     }
   </style>
 </head>
@@ -33,7 +54,19 @@
 
 <div id="map"></div>
 
-<div id="legend" class="legend"></div>
+<div class="legend">
+  <div class="legend-bar">
+    <div class="legend-indicator"></div>
+  </div>
+  <div class="legend-labels">
+    <div>0 (sem atendimentos)</div>
+    <div>100</div>
+    <div>80</div>
+    <div>60</div>
+    <div>40</div>
+    <div>20</div>
+  </div>
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -45,10 +78,23 @@ const geojsonUrl = 'AL.json';
 // Função para estilizar os polígonos
 function style(feature) {
   const atendimentos = feature.properties.ATENDIMENTOS || 0;
-  const cor = d3.scaleLinear()
+  const cor = d3.scaleSequential(d3.interpolateBlues)
                 .domain([0, 100])  // Ajuste o domínio conforme necessário
-                .range(['transparent', 'blue']); // Define a escala de cores
+                .clamp(true);
   
+  // Se atendimentos for 0, retornar sem cor de preenchimento e com borda preta
+  if (atendimentos === 0) {
+    return {
+      fillColor: 'transparent',
+      weight: 1,
+      opacity: 1,
+      color: 'black',
+      fillOpacity: 0,
+      dashArray: '3'  // Adiciona uma borda tracejada para diferenciar
+    };
+  }
+
+  // Caso contrário, aplicar cor baseado nos atendimentos
   return {
     fillColor: cor(atendimentos),
     weight: 1,
@@ -58,19 +104,53 @@ function style(feature) {
   };
 }
 
+// Criar o mapa inicializando no centro de Alagoas
+var map = L.map('map', {
+  maxBounds: [
+    [-9.5, -38], // Southwest coordinates
+    [-8.5, -35]  // Northeast coordinates
+  ],
+  maxBoundsViscosity: 1.0 // Mantém o mapa dentro dos limites definidos
+}).setView([-9.5733, -36.7820], 8);
+
+// Adicionar camada de mapa base (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+}).addTo(map);
+
+// Carregar GeoJSON e adicionar ao mapa
+fetch(geojsonUrl)
+  .then(response => response.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: style,
+      onEachFeature: function(feature, layer) {
+        layer.on({
+          mouseover: onMouseOver,
+          mouseout: onMouseOut,
+          click: onClick
+        });
+      }
+    }).addTo(map);
+  });
+
+// Função para atualizar a posição do indicador na legenda
+function updateLegendIndicator(value) {
+  const indicator = document.querySelector('.legend-indicator');
+  const totalHeight = 200; // Altura total da barra
+  const percent = (100 - value) * totalHeight / 100; // Calcula a posição baseado no valor (inverso)
+  indicator.style.transform = `translateY(${percent}%)`;
+}
+
 // Função para exibir informações ao passar o mouse
 function onMouseOver(e) {
-  const layer = e.target;
-  const properties = layer.feature.properties;
-  const atendimentos = properties.ATENDIMENTOS || 0;
-  
-  layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
+  const atendimentos = e.target.feature.properties.ATENDIMENTOS || 0;
+  updateLegendIndicator(atendimentos);
 }
 
 // Função para remover informações ao retirar o mouse
 function onMouseOut(e) {
-  const layer = e.target;
-  layer.closeTooltip();
+  updateLegendIndicator(0); // Reinicia o indicador para 0 ao retirar o mouse
 }
 
 // Função para exibir informações detalhadas ao clicar
@@ -90,45 +170,6 @@ function onClick(e) {
     .setContent(popupContent)
     .openOn(map);
 }
-
-// Função para criar a legenda
-function createLegend() {
-  const legend = document.getElementById('legend');
-  const grades = [0, 20, 40, 60, 80, 100]; // Valores da escala
-  
-  let html = '<h4>Atendimentos</h4>';
-  
-  for (let i = 0; i < grades.length; i++) {
-    const color = d3.interpolateBlues(grades[i] / 100);
-    const style = `background-color: ${color}; height: 20px; margin-bottom: 3px;`;
-    const label = i === 0 ? '0 (sem atendimentos)' : `${grades[i]}+`;
-    
-    html += `<div><div style="${style}"></div>${label}</div>`;
-  }
-  
-  legend.innerHTML = html;
-}
-
-// Criar o mapa inicializando no centro de Alagoas
-var map = L.map('map').setView([-9.5733, -36.7820], 8);
-
-// Carregar GeoJSON e adicionar ao mapa
-fetch(geojsonUrl)
-  .then(response => response.json())
-  .then(data => {
-    L.geoJSON(data, {
-      style: style,
-      onEachFeature: function(feature, layer) {
-        layer.on({
-          mouseover: onMouseOver,
-          mouseout: onMouseOut,
-          click: onClick
-        });
-      }
-    }).addTo(map);
-    
-    createLegend(); // Chama a função para criar a legenda
-  });
 
 </script>
 
