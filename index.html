@@ -31,7 +31,7 @@
 
     .pointer {
       position: absolute;
-      left: 5px;
+      left: 0px;
       width: 50px;
       height: 2px;
       background: black;
@@ -71,15 +71,15 @@ function style(feature) {
     color = 'black';
     dashArray = '3';
   } else if (atendimentos < 20) {
-    fillColor = '#e0f3f8'; // Ajuste as cores conforme necessário
+    fillColor = '#6495ED'; // Ajuste as cores conforme necessário
   } else if (atendimentos < 40) {
-    fillColor = '#abd9e9';
+    fillColor = '##6A5ACD';
   } else if (atendimentos < 60) {
-    fillColor = '#74add1';
+    fillColor = '#483D8B';
   } else if (atendimentos < 80) {
-    fillColor = '#4575b4';
+    fillColor = '#000080';
   } else {
-    fillColor = '#313695';
+    fillColor = '#000033';
   }
 
   return {
