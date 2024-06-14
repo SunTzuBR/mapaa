@@ -113,6 +113,7 @@ fetch(geojsonUrl)
           mouseout: onMouseOut,
           click: onClick
         });
+        layer.bindPopup(feature.properties.NM_MUNICIP);
       }
     }).addTo(map);
   });
