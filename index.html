@@ -49,6 +49,8 @@
   <div id="pointer" class="pointer"></div>
 </div>
 
+<button onclick="mostrarMensagem()">Clica Aqui</button>
+  
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
@@ -139,6 +141,10 @@ function updatePointer(value) {
   pointer.style.top = `${(1 - percentage) * 100}%`;
 }
 
+  function mostrarMensagem() {
+  console.log("Botão clicado! Mensagem exibida no console.");
+}
+  
 // Inicializar o mapa sem camada de base
 var map = L.map('map', {
   center: [-9.5733, -36.7820],
