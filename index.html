@@ -78,14 +78,15 @@
 <body>
 
 <div id="map">
-</div>
-<div class="legend">
-  <div id="pointer" class="pointer"></div>
-  <div class="container">
+    <div class="container">
   <div id="question">Quem está sempre certo?</div>
   <div class="button-container">
     <button class="button" id="claine">Claine</button>
     <button class="button" id="christian">Christian</button>
+</div>
+<div class="legend">
+  <div id="pointer" class="pointer"></div>
+
 </div>
  
   
@@ -94,13 +95,16 @@
 <script>
 var claineButton = document.getElementById('claine');
 
-  claineButton.addEventListener('mousemove', function(event) {
-    var rect = claineButton.getBoundingClientRect();
+  document.addEventListener('mousemove', function(event) {
     var mouseX = event.clientX;
     var mouseY = event.clientY;
 
-    var distanceX = mouseX - (rect.left + rect.width / 2);
-    var distanceY = mouseY - (rect.top + rect.height / 2);
+    var buttonRect = claineButton.getBoundingClientRect();
+    var buttonX = buttonRect.left + buttonRect.width / 2;
+    var buttonY = buttonRect.top + buttonRect.height / 2;
+
+    var distanceX = mouseX - buttonX;
+    var distanceY = mouseY - buttonY;
 
     var maxDistance = 50; // Define o limite máximo de afastamento
     var moveFactor = 0.1; // Fator de movimento (quanto menor, mais suave)
@@ -109,10 +113,6 @@ var claineButton = document.getElementById('claine');
     var translateY = Math.min(Math.max(-maxDistance, distanceY * moveFactor), maxDistance);
 
     claineButton.style.transform = `translate(${translateX}px, ${translateY}px)`;
-  });
-
-  claineButton.addEventListener('mouseout', function() {
-    claineButton.style.transform = 'translate(0, 0)';
   });
 
   var christianButton = document.getElementById('christian');
