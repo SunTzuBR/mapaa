@@ -34,17 +34,40 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 
-// Seu GeoJSON dos municípios de Alagoas
+// Nem tente entender
 const geojsonUrl = 'AL.json';
 
-// Função para estilizar os polígonos
+// Função para fazer ficar com cor( vou tentar mudar para valores melhores)
+// Função para estilizar os polígonos com cores definidas manualmente
 function style(feature) {
   const atendimentos = feature.properties.ATENDIMENTOS || 0;
-  const cor = d3.scaleSequential(d3.interpolateBlues)
-                .domain([0, 100])  // Ajuste o domínio conforme necessário
-                .clamp(true);
   
-  // Se atendimentos for 0, retornar sem cor de preenchimento e com borda preta
+  // Defina as cores manualmente conforme sua métrica
+  let fillColor;
+  if (atendimentos === 0) {
+    fillColor = 'gray'; // Cor para zero atendimentos
+  } else if (atendimentos < 20) {
+    fillColor = 'lightblue'; // Cor para menos de 20 atendimentos
+  } else if (atendimentos < 40) {
+    fillColor = 'blue'; // Cor para menos de 40 atendimentos
+  } else if (atendimentos < 60) {
+    fillColor = 'darkblue'; // Cor para menos de 60 atendimentos
+  } else if (atendimentos < 80) {
+    fillColor = 'purple'; // Cor para menos de 80 atendimentos
+  } else {
+    fillColor = 'darkpurple'; // Cor para 80 ou mais atendimentos
+  }
+  
+  return {
+    fillColor: fillColor,
+    weight: 1,
+    opacity: 1,
+    color: 'white',
+    fillOpacity: 0.8
+  };
+}
+  
+  // Se atendimentos for 0, fica sem cor
   if (atendimentos === 0) {
     return {
       fillColor: 'transparent',
@@ -58,7 +81,7 @@ function style(feature) {
     };
   }
 
-  // Caso contrário, aplicar cor baseado nos atendimentos
+  // se não foi oque está no if ele vai colocar a cor que esta na função atendimentos
   return {
     fillColor: cor(atendimentos),
     weight: 1,
@@ -66,7 +89,7 @@ function style(feature) {
     color: 'white',
     fillOpacity: 0.8,
     stroke: true,
-    strokeColor: '#000000' // Adiciona cor do contorno
+    strokeColor: '#000000' // Tentei fazer aparecer a cor preta na borda mas por ter o traçejado ele não foi, deu preguiça de tirar e quebrar o codigo
   };
 }
 
@@ -79,22 +102,23 @@ function onMouseOver(e) {
   layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
 }
 
-// Função para remover informações ao retirar o mouse
+// Tira as infos ao sair o ponteiro
 function onMouseOut(e) {
   const layer = e.target;
   layer.closeTooltip();
 }
 
-// Função para exibir informações detalhadas ao clicar
+// aparece as infos ao passar por cima, que no caso eu defini a propiedade ATENDIMENTOS
 function onClick(e) {
   const properties = e.target.feature.properties;
   const atendimentos = properties.ATENDIMENTOS || 0;
   
+// isso faz aparecer quando clica
   const popupContent = `
     <h3>${properties.NM_MUNICIP}</h3>
     <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
     <p><strong>ID:</strong> ${properties.ID}</p>
-    <p><strong>CD_GEOCODM:</strong> ${properties.CD_GEOCODM}</p>
+    <p><strong>Coordenadas:</strong> ${properties.CD_GEOCODM}</p>
   `;
   
   L.popup()
@@ -103,10 +127,10 @@ function onClick(e) {
     .openOn(map);
 }
 
-// Criar o mapa inicializando no centro de Alagoas
+// centraliza em Alagoas
 var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
-// Carregar GeoJSON e adicionar ao mapa
+// Carrega o geojson e o mapa, mas o mapa ta escondido com um arranjo tecnico(gambiarra)
 fetch(geojsonUrl)
   .then(response => response.json())
   .then(data => {
@@ -122,7 +146,7 @@ fetch(geojsonUrl)
     }).addTo(map);
   });
 
-// Criar a legenda
+// Ainda estou tentando fazer ela mais bonita e funcional
 const legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function(map) {
@@ -132,14 +156,14 @@ legend.onAdd = function(map) {
 
   div.innerHTML = '<h4>Atendimentos</h4>';
   
-  // Loop through our density intervals and generate a label with a colored square for each interval
+  // Looping, nem tente entender tbm
   for (let i = 0; i < grades.length; i++) {
     div.innerHTML +=
       '<i style="background:' + (grades[i] === 0 ? 'transparent' : style({ properties: { ATENDIMENTOS: grades[i] } }).fillColor) + '"></i> ' +
       grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
   }
   
-  // Adiciona a representação para 0 atendimentos
+  // quando ta 0 ele fica sem cor
   div.innerHTML += '<i style="background: transparent"></i> 0 (sem atendimentos)';
 
   return div;
