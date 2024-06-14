@@ -7,6 +7,7 @@
   <style>
     #map {
       height: 600px;
+      position: relative;
     }
     
     .legend {
@@ -14,6 +15,9 @@
       padding: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       border-radius: 5px;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
     }
 
     .legend i {
@@ -98,21 +102,21 @@ function onClick(e) {
 fetch(geojsonUrl)
   .then(response => response.json())
   .then(data => {
+    const map = d3.select("#map");
+    
     // Desenhar os polígonos do GeoJSON
-    data.features.forEach(feature => {
-      const path = d3.geoPath();
-      const svg = d3.select("#map").append("svg");
-      
-      svg.selectAll("path")
-         .data([feature])
-         .enter()
-         .append("path")
-         .attr("d", path)
-         .style("fill", style(feature))
-         .on("mouseover", onMouseOver)
-         .on("mouseout", onMouseOut)
-         .on("click", onClick);
-    });
+    map.selectAll("path")
+       .data(data.features)
+       .enter()
+       .append("path")
+       .attr("d", d3.geoPath())
+       .style("fill", d => style(d).fillColor)
+       .style("stroke", d => style(d).color)
+       .style("stroke-width", d => style(d).weight)
+       .style("fill-opacity", d => style(d).fillOpacity)
+       .on("mouseover", onMouseOver)
+       .on("mouseout", onMouseOut)
+       .on("click", onClick);
   });
 
 // Criar a legenda
