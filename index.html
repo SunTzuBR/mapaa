@@ -6,19 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
-      background-color: white; /* Define o background como branco */
-      margin: 0; /* Remove margens padrão */
-      overflow: hidden; /* Impede a rolagem da página */
-      position: relative; /* Define a posição relativa */
-    }
-
     #map {
-      position: absolute; /* Define a posição absoluta */
-      top: 0; /* Alinha o mapa no topo */
-      bottom: 0; /* Estende o mapa até o final da página */
-      width: 100%; /* Define a largura do mapa */
-      z-index: -1; /* Coloca o mapa abaixo do conteúdo */
+      height: 600px;
     }
     
     .legend {
@@ -26,9 +15,6 @@
       padding: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       border-radius: 5px;
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
     }
 
     .legend i {
@@ -114,10 +100,7 @@ function onClick(e) {
 }
 
 // Criar o mapa inicializando no centro de Alagoas
-var map = L.map('map', {
-  minZoom: 8, // Define o zoom mínimo
-  maxBounds: L.latLngBounds([[-10.5, -38], [-8.5, -34]]) // Define os limites de Alagoas
-}).setView([-9.5733, -36.7820], 8);
+var map = L.map('map').setView([-9.5733, -36.7820], 8);
 
 // Adicionar camada de mapa base (OpenStreetMap)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
