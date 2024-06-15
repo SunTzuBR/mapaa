@@ -36,6 +36,13 @@
       height: 2px;
       background: black;
     }
+     #popup {
+      position: absolute;
+      background-color: yellow;
+      padding: 5px;
+      border: 1px solid black;
+      transform: translateX(-50%);
+    }
 
     .leaflet-control-attribution {
       display: none;
@@ -47,6 +54,7 @@
 <div id="map"></div>
 <div class="legend">
   <div id="pointer" class="pointer"></div>
+   <div id="popup"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -133,13 +141,25 @@ function onClick(e) {
 
 // Atualiza a listrinha do ponteiro da legenda do lado
 function updatePointer(value) {
-  const min = 0;
-  const max = 500;
-  const range = max - min;
-  const percentage = (value - min) / range;
-  const pointer = document.getElementById('pointer');
-  pointer.style.top = `${(1 - percentage) * 100}%`;
-}
+      const min = 0;
+      const max = 500;
+      const range = max - min;
+      const percentage = (value - min) / range;
+      const pointer = document.getElementById('pointer');
+      const popup = document.getElementById('popup');
+      
+      const topPosition = (1 - percentage) * 100;
+      
+      pointer.style.top = `${topPosition}%`;
+      popup.style.top = `${topPosition}%`;
+      popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth / 2}px`;
+      popup.textContent = `Value: ${value}`;
+    }
+
+    // Example to test the function
+    document.addEventListener('DOMContentLoaded', () => {
+      updatePointer(250); // Mid-range example
+    });
 
 // Arranjo tecnico para sumir o mapa
 var map = L.map('map', {
