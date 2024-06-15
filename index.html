@@ -70,13 +70,15 @@ function style(feature) {
     fillColor = '#ffffff'; // quando tem 0 fica branco(Transparente pq eu defini abaixo que iria ficar sem cor)
     color = 'black';
     dashArray = '3';
-  } else if (atendimentos < 20) {
+  } else if (atendimentos < 50) {
+    fillColor = '#01afe7';
+  } else if (atendimentos < 100) {
     fillColor = '#6495ED';
-  } else if (atendimentos < 40) {
+  } else if (atendimentos < 200) {
     fillColor = '#6A5ACD';
-  } else if (atendimentos < 60) {
+  } else if (atendimentos < 300) {
     fillColor = '#483D8B';
-  } else if (atendimentos < 80) {
+  } else if (atendimentos < 400) {
     fillColor = '#000080';
   } else {
     fillColor = '#000033';
