@@ -38,12 +38,12 @@
     }
      #popup {
       position: absolute;
-      background-color: transparent;
+      background-color: yellow;
       padding: 5px;
-      left: -10px;
-    /* border: 1px solid black; */
-      transform: translateX(-50%);
-    }
+      border: 1px solid black;
+      display: none; /* Initially hidden */
+      transform: translateY(-50%);
+     }
 
     .leaflet-control-attribution {
       display: none;
@@ -153,13 +153,24 @@ function updatePointer(value) {
       
       pointer.style.top = `${topPosition}%`;
       popup.style.top = `${topPosition}%`;
-      popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth / 2}px`;
-      popup.textContent = `${value}`;
+      popup.textContent = `Value: ${value}`;
     }
 
-    // Example to test the function
     document.addEventListener('DOMContentLoaded', () => {
-      updatePointer(0); // Mid-range example
+      const pointer = document.getElementById('pointer');
+      const popup = document.getElementById('popup');
+      
+      pointer.addEventListener('mouseover', () => {
+        popup.style.display = 'block';
+        popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth + 10}px`; // Positioning to the right of the pointer
+      });
+
+      pointer.addEventListener('mouseout', () => {
+        popup.style.display = 'none';
+      });
+
+      // Example to test the function
+      updatePointer(250); // Mid-range example
     });
 
 // Arranjo tecnico para sumir o mapa
