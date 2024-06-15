@@ -38,7 +38,7 @@
     }
      #popup {
       position: absolute;
-      background-color: white;
+      background-color: transparent;
       padding: 5px;
       border: 1px solid black;
       transform: translateX(-50%);
@@ -153,7 +153,7 @@ function updatePointer(value) {
       pointer.style.top = `${topPosition}%`;
       popup.style.top = `${topPosition}%`;
       popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth / 2}px`;
-      popup.textContent = `Value: ${value}`;
+      popup.textContent = `${value}`;
     }
 
     // Example to test the function
