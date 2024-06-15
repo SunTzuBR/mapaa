@@ -153,8 +153,7 @@ function updatePointer(value) {
       const topPosition = (1 - percentage) * 100;
       
       pointer.style.top = `${topPosition}%`;
-      popup.style.top = `${topPosition}%`;
-      popup.textContent = `Value: ${value}`;
+      pointer.dataset.value = value; // Store the value in a data attribute
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -163,7 +162,9 @@ function updatePointer(value) {
       
       pointer.addEventListener('mouseover', () => {
         popup.style.display = 'block';
-        popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth + 100}px`; // Positioning to the right of the pointer
+        popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth + 10}px`; // Positioning to the right of the pointer
+        popup.style.top = `${pointer.offsetTop + pointer.offsetHeight / 2}px`;
+        popup.textContent = `Value: ${pointer.dataset.value}`; // Display the value stored in the data attribute
       });
 
       pointer.addEventListener('mouseout', () => {
