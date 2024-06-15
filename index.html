@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Te amo Claine</title>
+  <title>Mapa</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -11,40 +11,7 @@
       margin: 0;
       padding: 0;
     }
-   body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f0f0f0;
-      margin: 0;
-    }
-    .container {
-      text-align: center;
-    }
-    #question {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .button-container {
-      display: flex;
-      justify-content: center;
-    }
-    .button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      transition: transform 0.3s ease;
-    }
-    .button:hover {
-      transform: scale(1.1);
-    }
+
     #map {
       height: 100%;
       width: 100%;
@@ -77,95 +44,34 @@
 </head>
 <body>
 
-<div id="map">
-    <div class="container">
-  <div id="question">Quem está sempre certo?</div>
-  <div class="button-container">
-    <button class="button" id="claine">Claine</button>
-    <button class="button" id="christian">Christian</button>
-</div>
-    </div>
-      </div>
-
-
+<div id="map"></div>
 <div class="legend">
   <div id="pointer" class="pointer"></div>
-
 </div>
- 
-  
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 
-  const claineButton = document.getElementById('claine');
-  const christianButton = document.getElementById('christian');
-
-  window.addEventListener('mousemove', handleMouseMove);
-
-  claineButton.addEventListener('click', function() {
-    handleClick("Não tem como escapar mesmo kkkkk");
-  });
-
-  christianButton.addEventListener('click', function() {
-    handleClick("Exatamente hehehe");
-  });
-
-  function handleMouseMove(event) {
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
-
-    moveButton(claineButton, mouseX, mouseY, 2); // Multiplicador ajustado para 2
-   // moveButton(christianButton, mouseX, mouseY, 2); // Multiplicador ajustado para 2
-  }
-
-  function moveButton(button, mouseX, mouseY, multiplier) {
-    const buttonRect = button.getBoundingClientRect();
-    const buttonX = buttonRect.left + buttonRect.width / 2;
-    const buttonY = buttonRect.top + buttonRect.height / 2;
-
-    const deltaX = mouseX - buttonX;
-    const deltaY = mouseY - buttonY;
-
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-    const maxDistance = 100; // Distância máxima para mover o botão (valor ajustável)
-
-    if (distance < maxDistance) {
-      const angle = Math.atan2(deltaY, deltaX);
-      const moveX = Math.cos(angle) * (maxDistance - distance) * multiplier; // Multiplicador ajustável para movimento mais rápido
-      const moveY = Math.sin(angle) * (maxDistance - distance) * multiplier; // Multiplicador ajustável para movimento mais rápido
-
-      button.style.transform = `translate(${moveX}px, ${moveY}px)`;
-      button.style.pointerEvents = 'none'; // Desabilita os eventos de clique enquanto se move
-    } else {
-      button.style.transform = 'translate(0, 0)';
-      button.style.pointerEvents = 'auto'; // Habilita os eventos de clique quando não se move
-    }
-  }
-
-  function handleClick(message) {
-    alert(message); // Exibe a mensagem correspondente quando o botão é clicado dentro da maxDistance
-  }
-// URL do GeoJSON dos municípios de Alagoas
+// Nem tente entender
 const geojsonUrl = 'AL.json';
 
-// Função para estilizar os polígonos com cores definidas manualmente
+// troca os colores
 function style(feature) {
   const atendimentos = feature.properties.ATENDIMENTOS || 0;
 
-  // Defina as cores manualmente conforme sua métrica
+  // tanto por nome quanto por RGB
   let fillColor;
   let color = 'white';
   let weight = 1;
   let dashArray = null;
 
   if (atendimentos === 0) {
-    fillColor = '#ffffff'; // Branco para zero atendimentos
+    fillColor = '#ffffff'; // quando tem 0 fica branco(Transparente pq eu defini abaixo que iria ficar sem cor)
     color = 'black';
     dashArray = '3';
   } else if (atendimentos < 20) {
-    fillColor = '#6495ED'; // Ajuste as cores conforme necessário
+    fillColor = '#6495ED';
   } else if (atendimentos < 40) {
     fillColor = '#6A5ACD';
   } else if (atendimentos < 60) {
@@ -186,7 +92,7 @@ function style(feature) {
   };
 }
 
-// Função para exibir informações ao passar o mouse
+// Mostra as informações quando passa o mouse
 function onMouseOver(e) {
   const layer = e.target;
   const properties = layer.feature.properties;
@@ -194,22 +100,22 @@ function onMouseOver(e) {
   
   layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
 
-  // Atualizar a posição do ponteiro na legenda
+  // reseta o ponteiro
   updatePointer(atendimentos);
 }
 
-// Função para remover informações ao retirar o mouse
+// Serve so para tiras as infos quando tira o mouse(Na função acima ele chama e esse tira)
 function onMouseOut(e) {
   const layer = e.target;
   layer.closeTooltip();
 }
 
-// Função para exibir informações detalhadas ao clicar
+// Quando clica ele da as infos
 function onClick(e) {
   const properties = e.target.feature.properties;
   const atendimentos = properties.ATENDIMENTOS || 0;
   
-// isso faz aparecer quando clica
+// Essa chama a de cima
   const popupContent = `
     <h3>${properties.NM_MUNICIP}</h3>
     <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
@@ -223,7 +129,7 @@ function onClick(e) {
     .openOn(map);
 }
 
-// Função para atualizar a posição do ponteiro na legenda
+// Atualiza a listrinha do ponteiro da legenda do lado
 function updatePointer(value) {
   const min = 0;
   const max = 100;
@@ -233,23 +139,19 @@ function updatePointer(value) {
   pointer.style.top = `${(1 - percentage) * 100}%`;
 }
 
-  function mostrarMensagem() {
-  console.log("Botão clicado! Mensagem exibida no console.");
-}
-  
-// Inicializar o mapa sem camada de base
+// Arranjo tecnico para sumir o mapa
 var map = L.map('map', {
   center: [-9.5733, -36.7820],
   zoom: 8,
   layers: [],  // Remover a camada base
   maxBounds: [
-    [-11, -39], // Coordenadas do sudoeste de Alagoas
-    [-7, -34]  // Coordenadas do nordeste de Alagoas
+    [-11, -39], // Coordenadas de limite
+    [-7, -34]  // Coordenadas de limite
   ],
   maxBoundsViscosity: 2.0
 });
 
-// Carregar GeoJSON e adicionar ao mapa
+// Carrega o GeoJSON
 fetch(geojsonUrl)
   .then(response => response.json())
   .then(data => {
