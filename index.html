@@ -6,80 +6,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     }
-
     #map {
       height: 100%;
       width: 100%;
     }
-    
+    #logo{
+      position: absolute;
+      height: 30px; /* Altura da logo */
+      width: 50px; /* Largura da logo */
+      top: 20px; /* Distância do topo */
+      left: 700px; /* Distância da esquerda */
+    }
     .legend {
       position: absolute;
       bottom: 30px;
       right: 10px;
       width: 20px;
       height: 200px;
-      background: linear-gradient(to top, #6495ED, #6A5ACD, #836FFF, #6959CD, #483D8B, #191970, #000080, #00008B, #0000CD, #0000FF, #000033);
+      background: linear-gradient(to top, #01afe7, #6495ED, #6A5ACD, #483D8B, #000080, #000033);
       border: 1px solid #ccc;
-      border-radius: 5px;
       padding: 5px;
+      border-radius: 5px;
     }
-
     .pointer {
       position: absolute;
       left: 0px;
       width: 30px;
       height: 2px;
+      border-radius: 10px;
       background: black;
     }
-     #popup {
+    #popup {
       position: absolute;
-      background-color: yellow;
-      /*left: -40px*/
-       padding: 5px;
+      background-color: white;
+      padding: 5px;
       border: 1px solid black;
+      border-radius: 2px;
       display: none; /* Initially hidden */
       transform: translateY(-50%);
-     }
-
+    }
     .leaflet-control-attribution {
       display: none;
+    }
+    /* Estilo dos polígonos */
+    .leaflet-clickable {
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<div id="map"></div>
+<div id="map">
+</div>
 <div class="legend">
   <div id="pointer" class="pointer"></div>
-   <div id="popup"></div>
+  <div id="popup"></div>
 </div>
-
+<div id="logo">
+  <img src="logo.png" alt="Logo da Empresa">
+</div>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-
-// Nem tente entender
+// URL do arquivo GeoJSON
 const geojsonUrl = 'AL.json';
 
-// troca os colores
+// Estilo para os polígonos no mapa
 function style(feature) {
   const atendimentos = feature.properties.ATENDIMENTOS || 0;
-
-  // tanto por nome quanto por RGB
-  let fillColor;
-  let color = 'white';
-  let weight = 1;
-  let dashArray = null;
-
+  let fillColor, color = 'white', dashArray = null;
   if (atendimentos === 0) {
-    fillColor = '#ffffff'; // quando tem 0 fica branco(Transparente pq eu defini abaixo que iria ficar sem cor)
+    fillColor = '#ffffff';
     color = 'black';
-    dashArray = '3';
+    dashArray = '3'; // linha tracejada
   } else if (atendimentos < 50) {
     fillColor = '#01afe7';
   } else if (atendimentos < 100) {
@@ -93,10 +97,9 @@ function style(feature) {
   } else {
     fillColor = '#000033';
   }
-
   return {
     fillColor: fillColor,
-    weight: weight,
+    weight: 1,
     opacity: 1,
     color: color,
     fillOpacity: 0.8,
@@ -104,90 +107,91 @@ function style(feature) {
   };
 }
 
-// Mostra as informações quando passa o mouse
+// Função chamada quando o mouse passa sobre um estado
 function onMouseOver(e) {
   const layer = e.target;
   const properties = layer.feature.properties;
   const atendimentos = properties.ATENDIMENTOS || 0;
-  
   layer.bindTooltip(`<strong>${properties.NM_MUNICIP}</strong><br>Número de Atendimentos: ${atendimentos}`).openTooltip();
-
-  // reseta o ponteiro
   updatePointer(atendimentos);
+
+  const popup = document.getElementById('popup');
+  popup.style.display = 'block';
+  popup.style.left = `${pointer.offsetLeft - popup.offsetWidth - 3}px`;
+  popup.style.top = `${pointer.offsetTop + pointer.offsetHeight / 2}px`;
+  popup.textContent = `${atendimentos}`;
+
+  // Muda o estilo do polígono ao passar o mouse
+  layer.setStyle({
+    weight: 3,
+    color: 'yellow',
+    dashArray: null,
+    fillOpacity: 0.9
+  });
+
+  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+    layer.bringToFront();
+  }
 }
 
-// Serve so para tiras as infos quando tira o mouse(Na função acima ele chama e esse tira)
+// Função chamada quando o mouse sai de um estado
 function onMouseOut(e) {
   const layer = e.target;
   layer.closeTooltip();
+  resetHighlight(layer);
+
+  const popup = document.getElementById('popup');
+  popup.style.display = 'none';
 }
 
-// Quando clica ele da as infos
+// Função chamada quando um estado é clicado
 function onClick(e) {
   const properties = e.target.feature.properties;
   const atendimentos = properties.ATENDIMENTOS || 0;
-  
-// Essa chama a de cima
   const popupContent = `
     <h3>${properties.NM_MUNICIP}</h3>
     <p><strong>Número de Atendimentos:</strong> ${atendimentos}</p>
     <p><strong>ID:</strong> ${properties.ID}</p>
     <p><strong>Coordenadas:</strong> ${properties.CD_GEOCODM}</p>
   `;
-  
   L.popup()
     .setLatLng(e.latlng)
     .setContent(popupContent)
     .openOn(map);
 }
 
-// Atualiza a listrinha do ponteiro da legenda do lado
-function updatePointer(value) {
-      const min = 0;
-      const max = 500;
-      const range = max - min;
-      const percentage = (value - min) / range;
-      const pointer = document.getElementById('pointer');
-      const popup = document.getElementById('popup');
-      
-      const topPosition = (1 - percentage) * 100;
-      
-      pointer.style.top = `${topPosition}%`;
-      pointer.dataset.value = value; // Store the value in a data attribute
-    }
+// Atualiza o ponteiro na legenda
+function updatePointer(value, isLegend = false) {
+  const min = 0;
+  const max = 500;
+  const range = max - min;
+  const percentage = (value - min) / range;
+  const pointer = document.getElementById('pointer');
+  const popup = document.getElementById('popup');
+  const topPosition = (1 - percentage) * 100;
+  pointer.style.top = `${topPosition}%`;
+  pointer.dataset.value = value;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const pointer = document.getElementById('pointer');
-      const popup = document.getElementById('popup');
-      
-      pointer.addEventListener('mouseover', () => {
-        popup.style.display = 'block';
-        popup.style.left = `${pointer.offsetLeft + pointer.offsetWidth + 10}px`; // Positioning to the right of the pointer
-        popup.style.top = `${pointer.offsetTop + pointer.offsetHeight / 2}px`;
-        popup.textContent = `Value: ${pointer.dataset.value}`; // Display the value stored in the data attribute
-      });
+  if (isLegend) {
+    popup.textContent = `≈ ${Math.round(value)}`;
+  } else {
+    popup.textContent = ` ${Math.round(value)}`;
+  }
+}
 
-      pointer.addEventListener('mouseout', () => {
-        popup.style.display = 'none';
-      });
-
-      // Example to test the function
-      updatePointer(250); // Mid-range example
-    });
-
-// Arranjo tecnico para sumir o mapa
+// Inicializa o mapa
 var map = L.map('map', {
   center: [-9.5733, -36.7820],
   zoom: 8,
-  layers: [],  // Remover a camada base
+  layers: [],
   maxBounds: [
-    [-11, -39], // Coordenadas de limite
-    [-7, -34]  // Coordenadas de limite
+    [-11, -39],
+    [-7, -34]
   ],
   maxBoundsViscosity: 2.0
 });
 
-// Carrega o GeoJSON
+// Carrega o GeoJSON e adiciona ao mapa
 fetch(geojsonUrl)
   .then(response => response.json())
   .then(data => {
@@ -203,6 +207,61 @@ fetch(geojsonUrl)
     }).addTo(map);
   });
 
+// Mostra o valor quando o mouse passa sobre a legenda
+document.addEventListener('DOMContentLoaded', () => {
+  const pointer = document.getElementById('pointer');
+  const popup = document.getElementById('popup');
+  const legend = document.querySelector('.legend');
+  
+  legend.addEventListener('mousemove', (e) => {
+    const legendHeight = legend.clientHeight;
+    const mouseY = e.clientY - legend.getBoundingClientRect().top;
+    const value = ((legendHeight - mouseY) / legendHeight) * 500;
+    updatePointer(value, true);
+
+    // Destaque os estados com valores semelhantes
+    highlightSimilarValues(value);
+    
+    popup.style.display = 'block';
+    popup.style.left = `${pointer.offsetLeft - popup.offsetWidth - 3}px`; // Positioning to the left of the pointer
+    popup.style.top = `${pointer.offsetTop + pointer.offsetHeight / 2}px`;
+  });
+
+  legend.addEventListener('mouseleave', () => {
+    popup.style.display = 'none';
+    resetHighlight();
+  });
+  
+  // Exemplo inicial para testar a função
+  updatePointer(250, true);
+});
+
+// Destaca áreas com valores semelhantes
+function highlightSimilarValues(value) {
+  map.eachLayer(layer => {
+    if (layer.feature) {
+      const atendimentos = layer.feature.properties.ATENDIMENTOS || 0;
+      if (Math.abs(atendimentos - value) < 10) {
+        layer.setStyle({ weight: 3, color: 'yellow' });
+      } else {
+        layer.setStyle(style(layer.feature));
+      }
+    }
+  });
+}
+
+// Restaura o estilo original das áreas destacadas
+function resetHighlight(layer) {
+  if (layer) {
+    layer.setStyle(style(layer.feature));
+  } else {
+    map.eachLayer(l => {
+      if (l.feature) {
+        l.setStyle(style(l.feature));
+      }
+    });
+  }
+}
 </script>
 
 </body>
